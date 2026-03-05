@@ -80,12 +80,12 @@ O `main.py` executa a coleta e envio automaticamente para os anos configurados. 
 ```
 f1-lakehouse/
 ├── .env                 # Variáveis de ambiente (não commitar)
-├── main.py              # Script principal
+├── main.py              # Script principal; orquestra coleta e envio
 ├── src/
-│   ├── collect.py       # Módulo de coleta de dados
+│   ├── collect.py       # Módulo de coleta de dados usando fastf1
 │   └── sender.py        # Módulo de envio para S3
 ├── data/                # Dados locais (ignorados pelo git)
-├── teste_aws.py         # Script de teste de acesso AWS
+├── teste_aws.py         # Script de teste de acesso AWS (exemplo utilitário)
 └── README.md            # Este arquivo
 ```
 
