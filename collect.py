@@ -48,7 +48,7 @@ class CollectResults:
             return False
         
         self.save_data(df, year, gp, mode)
-        time.sleep(1)
+        time.sleep(5)
         return True
 
 
@@ -70,11 +70,19 @@ class CollectResults:
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Coleta os resultados das corridas de F1 usando a biblioteca fastf1")
+    parser.add_argument("--start",type=int)
+    parser.add_argument("--stop",type=int)
     parser.add_argument("--years", "-y", nargs="+", type=int)
     parser.add_argument("--modes", "-m", nargs="+")
 
     args = parser.parse_args()
 
-    collect = CollectResults(args.years, args.modes)
+    if args.years:
+        collect = CollectResults(args.years, args.modes)
+    
+    elif args.start and args.stop:
+        years = [i for i in range(args.start, args.stop+1)]
+        collect = CollectResults(years, args.modes)
+
     collect.process_years()
