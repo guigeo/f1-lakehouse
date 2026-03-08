@@ -4,8 +4,8 @@ pd.set_option('display.max_columns', None)
 
 import fastf1
 import time
-
 import argparse
+import os
 
 # %%
 
@@ -14,16 +14,17 @@ class CollectResults:
     def __init__(self, years=[2021,2022,2023], modes=["R", "S"]):
         self.years = years
         self.modes = modes
+
+        os.makedirs("data", exist_ok=True)
         
     def get_data(self, year, gp, mode)->pd.DataFrame:
         try:
             session = fastf1.get_session(year, gp, mode)
-        
-        except ValueError as err:
+        except ValueError:
             return pd.DataFrame()
         
         session._load_drivers_results()
-        df = session.results
+        df = session.results.copy()
 
         df["Year"] = session.date.year
         df["Date"] = session.date
@@ -34,11 +35,24 @@ class CollectResults:
         df["Country"] = session.event["Country"]
         df["Location"] = session.event["Location"]
 
+        # ---------
+        # Corrigir timestamps para Spark
+        # ---------
+        for col in df.select_dtypes(include=["datetime64[ns]"]).columns:
+            df[col] = df[col].astype("datetime64[us]")
+
         return df
     
+
     def save_data(self, df:pd.DataFrame, year:int, gp:int, mode:str):
         filename = f"data/{year}_{gp:02}_{mode}.parquet"
-        df.to_parquet(filename, index=False)
+
+        df.to_parquet(
+            filename,
+            index=False,
+            engine="pyarrow",
+            coerce_timestamps="us"
+        )
 
 
     def process(self, year, gp, mode):
